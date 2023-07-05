@@ -1,7 +1,5 @@
 package com.heima.utils.common;
 
-import org.apache.commons.codec.binary.Base64;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -13,13 +11,19 @@ import java.util.zip.*;
  */
 public class ZipUtils {
 
+
     /**
-     * 使用 gzip 进行压缩
+     * 使用gzip进行压缩
      */
     public static String gzip(String primStr) {
-        if (primStr == null || primStr.length() == 0) return primStr;
+        if (primStr == null || primStr.length() == 0) {
+            return primStr;
+        }
+
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+
         GZIPOutputStream gzip = null;
         try {
             gzip = new GZIPOutputStream(out);
@@ -35,12 +39,14 @@ public class ZipUtils {
                 }
             }
         }
-        return Base64.encodeBase64String(out.toByteArray());
+        return new sun.misc.BASE64Encoder().encode(out.toByteArray());
     }
 
 
     /**
-     * Description:使用 gzip 进行解压缩
+     * <p>
+     * Description:使用gzip进行解压缩
+     * </p>
      *
      * @param compressedStr
      * @return
@@ -50,23 +56,23 @@ public class ZipUtils {
             return null;
         }
 
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ByteArrayInputStream in = null;
         GZIPInputStream ginzip = null;
         byte[] compressed = null;
         String decompressed = null;
         try {
-            byte[] compressedBytes = Base64.decodeBase64(compressedStr);
-            out = new ByteArrayOutputStream();
-            in = new ByteArrayInputStream(compressedBytes);
+            compressed = new sun.misc.BASE64Decoder().decodeBuffer(compressedStr);
+            in = new ByteArrayInputStream(compressed);
             ginzip = new GZIPInputStream(in);
+
 
             byte[] buffer = new byte[1024];
             int offset = -1;
             while ((offset = ginzip.read(buffer)) != -1) {
                 out.write(buffer, 0, offset);
             }
-
             decompressed = out.toString();
         } catch (IOException e) {
             e.printStackTrace();
@@ -116,7 +122,7 @@ public class ZipUtils {
             zout.write(str.getBytes());
             zout.closeEntry();
             compressed = out.toByteArray();
-            compressedStr = Base64.encodeBase64String(compressed);
+            compressedStr = new sun.misc.BASE64Encoder().encodeBuffer(compressed);
         } catch (IOException e) {
             compressed = null;
         } finally {
@@ -147,23 +153,23 @@ public class ZipUtils {
         if (compressedStr == null) {
             return null;
         }
-        byte[] compressed = Base64.decodeBase64(compressedStr);
+
+
         ByteArrayOutputStream out = null;
         ByteArrayInputStream in = null;
         ZipInputStream zin = null;
         String decompressed = null;
         try {
+            byte[] compressed = new sun.misc.BASE64Decoder().decodeBuffer(compressedStr);
             out = new ByteArrayOutputStream();
             in = new ByteArrayInputStream(compressed);
             zin = new ZipInputStream(in);
             zin.getNextEntry();
-
             byte[] buffer = new byte[1024];
-            int offset;
+            int offset = -1;
             while ((offset = zin.read(buffer)) != -1) {
                 out.write(buffer, 0, offset);
             }
-
             decompressed = out.toString();
         } catch (IOException e) {
             decompressed = null;

@@ -1,6 +1,7 @@
 package com.heima.utils.common;
 
-import org.apache.commons.codec.binary.Base64;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
 public class Base64Utils {
 
@@ -9,10 +10,17 @@ public class Base64Utils {
      * @param base64
      * @return
      */
-    public static byte[] decode(String base64) {
+    public static byte[] decode(String base64){
+        BASE64Decoder decoder = new BASE64Decoder();
         try {
             // Base64 解码
-            return Base64.decodeBase64(base64);
+            byte[] b = decoder.decodeBuffer(base64);
+            for (int i = 0; i < b.length; ++i) {
+                if (b[i] < 0) {// 调整异常数据
+                    b[i] += 256;
+                }
+            }
+            return b;
         } catch (Exception e) {
             return null;
         }
@@ -26,6 +34,7 @@ public class Base64Utils {
      * @throws Exception
      */
     public static String encode(byte[] data) {
-        return Base64.encodeBase64String(data);
+        BASE64Encoder encoder = new BASE64Encoder();
+        return encoder.encode(data);
     }
 }
